@@ -12,8 +12,8 @@ import (
 
 func execute(ctx context.Context, hostname, script string, tabbed chan<- string) error {
 	cmd := exec.CommandContext(ctx,
-		"ssh", hostname, "--",
-		"sh -c 'while true ; do "+script+" ; sleep 5 ; done'",
+		"ssh", hostname,
+		"exec", "sh", "-c", `"while true ; do `+script+` ; sleep 5 ; done"`,
 	)
 
 	outpipe, err := cmd.StdoutPipe()
