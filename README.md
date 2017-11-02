@@ -11,6 +11,6 @@ EXAMPLES
 
 	watch-shell date host1 host2 host3
 	watch-shell 'hostname ; du -hs $HOME' host1 host2 host3
-	knife node list | grep prometheus | xargs watch-shell 'hostname ; ps -p $(pidof prometheus) -o %cpu,%mem'
+	cat hosts.txt | xargs watch-shell 'hostname ; ps -p $(pidof prometheus) -o %cpu,%mem'
 ```
 
