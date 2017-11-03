@@ -10,10 +10,10 @@ import (
 	"time"
 )
 
-func execute(ctx context.Context, hostname, script string, tabbed chan<- string) error {
+func execute(ctx context.Context, hostname string, script []string, tabbed chan<- string) error {
 	cmd := exec.CommandContext(ctx,
 		"ssh", hostname,
-		"exec", "sh", "-c", `"while true ; do `+script+` ; sleep 5 ; done"`,
+		"exec", "sh", "-c", `"while true ; do `+strings.Join(script, " ; ")+` ; sleep 5 ; done"`,
 	)
 
 	outpipe, err := cmd.StdoutPipe()

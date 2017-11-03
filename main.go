@@ -7,7 +7,6 @@ import (
 	"log"
 	"os"
 	"os/signal"
-	"strings"
 	"syscall"
 
 	"github.com/oklog/oklog/pkg/group"
@@ -16,23 +15,38 @@ import (
 const timestampFormat = "15:04:05"
 
 func main() {
-	// Initial validation.
 	log.SetFlags(0)
-	if len(os.Args) < 3 {
-		log.Fatalf("usage: %s 'hostname ; du -hs $HOME ; ps aux|grep system|head -n1' host1 [host2 ...]", os.Args[0])
+	usage := fmt.Sprintf("usage: %s command [command ...] -- host1 [host2 ...]", os.Args[0])
+
+	// Find the -- split.
+	var split int
+	for i := 1; i < len(os.Args); i++ {
+		if os.Args[i] == "--" {
+			split = i
+			break
+		}
+	}
+	if split == 0 {
+		log.Fatal(usage)
 	}
 
-	// Parse the script arg.
-	script := os.Args[1]
-	log.Printf("running script: %q", script)
-
-	// Parse the host args.
-	hosts := os.Args[2:]
-	plural := ""
-	if len(hosts) > 1 {
-		plural = "s"
+	// Print the script.
+	script := os.Args[1:split]
+	if len(script) <= 0 {
+		log.Fatal(usage)
 	}
-	log.Printf("%d host%s: %s", len(hosts), plural, strings.Join(hosts, " "))
+	log.Printf("running %d-element script", len(script))
+
+	// Print the hosts.
+	hosts := os.Args[split+1:]
+	if len(hosts) <= 0 {
+		log.Fatal(usage)
+	}
+	plural := "s"
+	if len(hosts) == 1 {
+		plural = ""
+	}
+	log.Printf("running against %d host%s", len(hosts), plural)
 
 	// Each host will output to a channel, a row in the table.
 	outputs := make([]chan string, len(hosts))
